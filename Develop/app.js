@@ -4,32 +4,140 @@ const Intern = require("./lib/Intern");
 const inquirer = require("inquirer");
 const path = require("path");
 const fs = require("fs");
+const prompt = inquirer.createPromptModule();
+const employees = [];
+//questions
+const engineerInquiry = {
+    message: "Enter GitHub username",
+    type: "input",
+    name: "github"
+}
 
-const OUTPUT_DIR = path.resolve(__dirname, "output");
-const outputPath = path.join(OUTPUT_DIR, "team.html");
+const internInquiry = {
+    message: "Enter intern's school",
+    type: "input",
+    name: "school"
+}
 
-const render = require("./lib/htmlRenderer");
+const managerInquiry = {
+    message: "Enter manager's office number",
+    type: "number",
+    name: "officeNumber"
+}
 
 
-// Write code to use inquirer to gather information about the development team members,
-// and to create objects for each team member (using the correct classes as blueprints!)
 
-// After the user has input all employees desired, call the `render` function (required
-// above) and pass in an array containing all employee objects; the `render` function will
-// generate and return a block of HTML including templated divs for each employee!
+const generalInquiry = [{
+        message: "Enter name",
+        type: "input",
+        name: "name"
+    }, {
+        message: "Please enter ID",
+        type: "input",
+        name: "id"
+    },
+    {
+        message: "Please enter Email",
+        type: "input",
+        name: "email"
+    }
+];
 
-// After you have your html, you're now ready to create an HTML file using the HTML
-// returned from the `render` function. Now write it to a file named `team.html` in the
-// `output` folder. You can use the variable `outputPath` above target this location.
-// Hint: you may need to check if the `output` folder exists and create it if it
-// does not.
+const employeeTypeQuestion = [{
+    message: "What type of team member would you like to add?",
+    name: "role",
+    type: "list",
+    choices: [
+        "Intern",
+        "Engineer",
+        "No more adds"
+    ]
+}];
 
-// HINT: each employee type (manager, engineer, or intern) has slightly different
-// information; write your code to ask different questions via inquirer depending on
-// employee type.
+function init() {
+    prompt([
+        ...generalInquiry,
+        managerInquiry
+    ]).then(({
+        name,
+        officeNumber,
+        email,
+        id,
+    }) => {
+        let manager = new Manager(name, id, email, officeNumber);
+        if (name !== "" && id !== "" && email !== "" && officeNumber !== "" && !isNaN(officeNumber)) {
+            employees.push(manager);
+            createEmployees();
+        } else {
+            console.log("Please enter valid input");
+            init();
+        }
+    })
+}
 
-// HINT: make sure to build out your classes first! Remember that your Manager, Engineer,
-// and Intern classes should all extend from a class named Employee; see the directions
-// for further information. Be sure to test out each class and verify it generates an
-// object with the correct structure and methods. This structure will be crucial in order
-// for the provided `render` function to work! ```
+function createEmployees() {
+    prompt(employeeTypeQuestion).then((data) => {
+        if (data.role === "Engineer") {
+            createEngineer();
+        } else if (data.role === "Intern") {
+            createIntern();
+        } else {
+            //generate HTML and write file
+            writeToFile("./output/team.html", render(employees));
+        }
+    })
+}
+
+function createEngineer() {
+    prompt([
+        ...generalQuestions,
+        engineerQuestion
+    ]).then(({
+        name,
+        id,
+        email,
+        github
+    }) => {
+        let engineer = new Engineer(name, id, email, github);
+        if (name !== "" && id !== "" && email !== "" && github !== "") {
+            employees.push(engineer);
+            createEmployees();
+        } else {
+            console.log("Please enter valid input");
+            createEngineer();
+        }
+    })
+}
+
+function createIntern() {
+    prompt([
+        ...generalQuestions,
+        internQuestion
+    ]).then(({
+        name,
+        id,
+        email,
+        school
+    }) => {
+        let intern = new Intern(name, id, email, school);
+        if (name !== "" && id !== "" && email !== "" && school !== "") {
+            employees.push(intern);
+            createEmployees();
+        } else {
+            console.log("Please enter valid input");
+            createIntern();
+        }
+    })
+}
+
+// function to write file
+function writeToFile(fileName, data) {
+    fs.writeFile(fileName, data, err => {
+        if (err) {
+            throw err;
+        }
+        console.log("Successful");
+    });
+}
+
+init();
