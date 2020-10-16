@@ -43,7 +43,7 @@ const generalInquiry = [{
     }
 ];
 
-const employeeTypeQuestion = [{
+const employeeTypeInquiry = [{
     message: "What type of team member would you like to add?",
     name: "role",
     type: "list",
@@ -62,21 +62,21 @@ function init() {
         name,
         officeNumber,
         email,
-        id,
+        id
     }) => {
-        let manager = new Manager(name, id, email, officeNumber);
-        if (name !== "" && id !== "" && email !== "" && officeNumber !== "" && !isNaN(officeNumber)) {
+        let manager = new Manager(name,officeNumber, id, email );
+        if (name !== "" && officeNumber !== "" && email !== "" && id  !== "" && !isNaN(officeNumber)) {
             employees.push(manager);
             createEmployees();
         } else {
-            console.log("Please enter valid input");
+            console.log("Insert valid input");
             init();
         }
     })
 }
 
 function createEmployees() {
-    prompt(employeeTypeQuestion).then((data) => {
+    prompt(employeeTypeInquiry ).then((data) => {
         if (data.role === "Engineer") {
             createEngineer();
         } else if (data.role === "Intern") {
@@ -90,20 +90,20 @@ function createEmployees() {
 
 function createEngineer() {
     prompt([
-        ...generalQuestions,
-        engineerQuestion
+        ...generalInquiry,
+        engineerInquiry
     ]).then(({
         name,
-        id,
         email,
+        id,
         github
     }) => {
-        let engineer = new Engineer(name, id, email, github);
+        let engineer = new Engineer(name, email, id,  github);
         if (name !== "" && id !== "" && email !== "" && github !== "") {
             employees.push(engineer);
             createEmployees();
         } else {
-            console.log("Please enter valid input");
+            console.log("Insert valid input");
             createEngineer();
         }
     })
@@ -111,20 +111,20 @@ function createEngineer() {
 
 function createIntern() {
     prompt([
-        ...generalQuestions,
-        internQuestion
+        ...generalInquiry,
+        internInquiry
     ]).then(({
         name,
-        id,
         email,
+        id,
         school
     }) => {
-        let intern = new Intern(name, id, email, school);
+        let intern = new Intern(name, email, id,  school);
         if (name !== "" && id !== "" && email !== "" && school !== "") {
             employees.push(intern);
             createEmployees();
         } else {
-            console.log("Please enter valid input");
+            console.log("Insert valid input");
             createIntern();
         }
     })
